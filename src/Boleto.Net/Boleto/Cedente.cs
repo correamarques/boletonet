@@ -20,6 +20,8 @@ namespace BoletoNet
         private string _carteira;
         private Endereco _endereco;
         private IList<IInstrucao> _instrucoes = new List<IInstrucao>();
+		private int _postoAtendimento;
+		private int _unidadeAtendimento;
         #endregion Variaveis
 
         public Cedente()
@@ -241,7 +243,22 @@ namespace BoletoNet
                 _instrucoes = value;
             }
         }
-
+		/// <summary>
+		/// Unidade de Atendimento
+		/// </summary>
+		public int UnidadeAtendimento
+		{
+			get { return _unidadeAtendimento; }
+			set { _unidadeAtendimento = value; }
+		}
+		/// <summary>
+		/// Posto de atendimento
+		/// </summary>
+		public int PostoAtendimento
+		{
+			get { return _postoAtendimento; }
+			set { _postoAtendimento = value; }
+		}
         #endregion Propriedades
     }
 }
