@@ -112,24 +112,64 @@ namespace BoletoNet
             return string.Format("{0}.{1}",campo.Substring(0, 5), campo.Substring(5));
         }
 
-        public override void FormataCodigoBarra(Boleto boleto)
-        {
-            string valorBoleto = boleto.ValorBoleto.ToString("f").Replace(",", "").Replace(".", "");
-            valorBoleto = Utils.FormatCode(valorBoleto, 10);
+		/// <summary>
+		/// Formata o código de barras conforme layout
+		/// <remarks>Manual obtido no link http://www.sicredi.com.br/websitesicredi/upload/files/28459_Manual_Beneficiario_Cobranca_CNAB_240___18062014.pdf
+		/// Página 80
+		/// </remarks>
+		/// </summary>
+		/// <param name="boleto"></param>
+		public override void FormataCodigoBarra(Boleto boleto)
+		{
+			string codigoDeBarras = MontaIdentificacaoCodigoDeBarras(boleto);
+			string campoLivre = MontaCampoLivreCodigoDeBarras(boleto);
 
-            string cmp_livre =  boleto.Carteira + "1" + boleto.NossoNumero + boleto.Cedente.ContaBancaria.Agencia + boleto.Cedente.ContaBancaria.OperacaConta + boleto.Cedente.Codigo + "10";
-            string dv_cmpLivre = digSicredi(cmp_livre).ToString();
+			codigoDeBarras += campoLivre;
 
-            boleto.CodigoBarra.Codigo = string.Format("{0}{1}{2}{3}{4}{5}", Utils.FormatCode(Codigo.ToString(), 3), boleto.Moeda, FatorVencimento(boleto), valorBoleto, cmp_livre, digSicredi(cmp_livre).ToString());
+			int digitoBoleto = digSicredi(boleto.CodigoBarra.Codigo);
+			if (digitoBoleto == 0 || digitoBoleto > 9)
+				digitoBoleto = 1;
 
-            int _dacBoleto = digSicredi(boleto.CodigoBarra.Codigo);
+			codigoDeBarras = codigoDeBarras.Insert(4, digitoBoleto.ToString());
 
-            if (_dacBoleto == 0 || _dacBoleto > 9)
-                _dacBoleto = 1;
+			boleto.CodigoBarra.Codigo = codigoDeBarras;
+		}
 
+		string MontaIdentificacaoCodigoDeBarras(Boleto boleto)
+		{
+			string identificacaoBanco = boleto.Banco.Codigo.ToString();
+			string codigoMoeda = boleto.Moeda.ToString();
+			string fatorVencimento = FatorVencimento(boleto).ToString();
+			string valorBoleto = boleto.ValorBoleto.ToString("f").Replace(",", "").Replace(".", "");
+			valorBoleto = Utils.FormatCode(valorBoleto, 10);
 
-            boleto.CodigoBarra.Codigo = Strings.Left(boleto.CodigoBarra.Codigo, 4) + _dacBoleto + Strings.Right(boleto.CodigoBarra.Codigo, 39);
-        }
+			return string.Format("{0}{1}{2}{3}", identificacaoBanco, codigoMoeda, fatorVencimento, valorBoleto);
+		}
+		string MontaCampoLivreCodigoDeBarras(Boleto boleto)
+		{
+			string tipoCobranca = "3"; //sicredi
+			string tipoCarteira = "1"; //carteira simples
+			string nossoNumero = boleto.NossoNumero;
+			string cooperativaCreditoAgenciaCedente = boleto.Cedente.ContaBancaria.Agencia;
+			string unidadeAtendimentoPostoAgenciaCedente = "00";
+
+			if (boleto.Cedente.PostoAtendimento != 0)
+				unidadeAtendimentoPostoAgenciaCedente = boleto.Cedente.PostoAtendimento.ToString("D2");
+			else if (boleto.Cedente.UnidadeAtendimento != 0)
+				unidadeAtendimentoPostoAgenciaCedente = boleto.Cedente.UnidadeAtendimento.ToString("D2");
+
+			string codigoCedente = boleto.Cedente.Codigo.PadLeft(5, '0');
+			string filler = "1"; //Obs.: será 1 (um) quando houver valor expresso no campo “valor do documento”.
+			string filler2 = "0";
+
+			string campoLivre = string.Empty;
+			campoLivre = tipoCobranca + tipoCarteira + nossoNumero + cooperativaCreditoAgenciaCedente + unidadeAtendimentoPostoAgenciaCedente + codigoCedente + filler + filler2;
+
+			string digitoCampoLivre = digSicredi(campoLivre).ToString();
+			campoLivre += digitoCampoLivre;
+
+			return campoLivre;
+		}
 
         public bool RegistroByCarteira(Boleto boleto)
         {
