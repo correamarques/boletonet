@@ -113,18 +113,17 @@ namespace BoletoNet
 
             //Campo 1
             string M = boleto.Moeda.ToString();
-            string AAA = boleto.Cedente.ContaBancaria.Agencia.Substring(1, 3);
+            string AAAA = boleto.Cedente.ContaBancaria.Agencia;
             string Metade1 = "041" + M + "2";
-            string Metade2 = "1" + AAA;
+            string Metade2 = "1" + AAAA.Substring(0, 3);
             string d1 = Mod10Banri(Metade1 + Metade2).ToString();
             Campo1 = Metade1 + "." + Metade2 + d1;
 
             //Campo 2
             Metade1 = string.Empty;
             Metade2 = string.Empty;
-            Metade1 = Cedente.Substring(0, 5);
-            //Metade2 = Cedente.Substring(5, 2) + NossoNumero.Substring(0, 2);
-            Metade2 = Cedente.Substring(5, 2) + NossoNumero.Substring(0, 3);
+            Metade1 = AAAA.Substring(3, 1) + Cedente.Substring(0, 5);
+            Metade2 = Cedente.Substring(5, 2) + NossoNumero.Substring(0, 2);
             string d2 = Mod10Banri(Metade1 + Metade2).ToString();
             Campo2 = Metade1 + "." + Metade2 + d2;
 
@@ -133,9 +132,9 @@ namespace BoletoNet
             Metade2 = string.Empty;
             string XX = _primDigito.ToString() + _segDigito.ToString();
             //Metade1 = NossoNumero.Substring(2, 5);
-            Metade1 = NossoNumero.Substring(3, 5);
-            //Metade2 = NossoNumero.Substring(7, 1) + "041" + XX;
-            Metade2 = "041" + XX;
+            Metade1 = NossoNumero.Substring(2, 5);
+            Metade2 = NossoNumero.Substring(7, 1) + "40" + XX;
+            //Metade2 = "041" + XX;
             string d3 = Mod10Banri(Metade1 + Metade2).ToString();
             Campo3 = Metade1 + "." + Metade2 + d3;
 
@@ -167,7 +166,7 @@ namespace BoletoNet
             nossoNumero = nossoNumero.Substring(0, 8);
             //campoLivre = "21" + boleto.Cedente.ContaBancaria.Agencia.Substring(1, 3) + boleto.Cedente.ContaBancaria.Conta + nossoNumero + "041";
             string codCedente = boleto.Cedente.Codigo.Substring(4);// Os quatro primeiros digitos do código do cedente é sempre a agência
-            campoLivre = "21" + boleto.Cedente.ContaBancaria.Agencia.Substring(1, 3) + codCedente + nossoNumero + "041";
+            campoLivre = "21" + boleto.Cedente.ContaBancaria.Agencia + codCedente.Substring(0, 7) + nossoNumero + "40";
             string ncCodBarra = CalcularNCCodBarras(campoLivre);
             Int32.TryParse(ncCodBarra.Substring(0, 1), out _primDigito);
             Int32.TryParse(ncCodBarra.Substring(1, 1), out _segDigito);
