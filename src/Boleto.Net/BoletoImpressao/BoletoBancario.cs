@@ -593,7 +593,7 @@ namespace BoletoNet
 					agenciaCodigoCedente = String.Format("{0}/{1}", Cedente.ContaBancaria.Agencia, Cedente.Codigo.ToString()); //Solicitação do HSBC que mostrasse agencia/Conta - por Transis em 24/02/15
 
 				else if (Boleto.Banco.Codigo == 748)
-					agenciaCodigoCedente = string.Format("{0}.{1}.{2}", Cedente.ContaBancaria.Agencia, Cedente.ContaBancaria.OperacaConta, Cedente.Codigo);
+					agenciaCodigoCedente = string.Format("{0}.{1}.{2}", Cedente.ContaBancaria.Agencia, Cedente.PostoAtendimento != 0 ? Cedente.PostoAtendimento : Cedente.UnidadeAtendimento , Cedente.Codigo);
 				else
 					agenciaCodigoCedente = agenciaConta;
 			}
@@ -687,7 +687,8 @@ namespace BoletoNet
 					case 341:
 						descricaoCarteira = new Carteira_Itau(carteira).Codigo;
 						break;
-
+                    case 748:
+                        return carteira.ToString();
 					default:
 						throw new Exception(string.Format("A descrição para o banco {0} não foi implementada.", Boleto.Banco));
 						throw new Exception(string.Format("A descrição da carteira {0} / banco {1} não foi implementada (marque false na propriedade MostrarCodigoCarteira)", carteira, Banco.Codigo));

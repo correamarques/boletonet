@@ -77,8 +77,8 @@ namespace BoletoNet
 
         public override void FormataNossoNumero(Boleto boleto)
         {
-            string nossoNumero = boleto.NossoNumero;            
-            boleto.NossoNumero = string.Format("{0}/{1}-{2}", nossoNumero.Substring(0, 2), nossoNumero.Substring(2, 6), nossoNumero.Substring(8));
+            string nossoNumero = boleto.NossoNumero;
+            boleto.NossoNumero = string.Format("{0}/2{1}-{2}", DateTime.Today.ToString("yy"), nossoNumero.Substring(2, 6), nossoNumero.Substring(8));
         }
 
         public override void FormataNumeroDocumento(Boleto boleto)
