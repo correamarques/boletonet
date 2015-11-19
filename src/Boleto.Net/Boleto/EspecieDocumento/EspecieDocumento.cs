@@ -172,6 +172,23 @@ namespace BoletoNet
         {
             try
             {
+				if (especie.Banco.Codigo == 748)
+				{// Implementação das espécies de documento do Sicredi
+					switch (especie.Codigo)
+					{
+						case "A": return "DMI";
+						case "B": return "DR";
+						case "C": return "NP";
+						case "D": return "NR";
+						case "E": return "NS";
+						case "G": return "RC";
+						case "H": return "LC";
+						case "I": return "ND";
+						case "J": return "DSI";
+						case "K": return "OS";
+						default: return "OS";
+					}
+				}
                 return especie.Sigla;
             }
             catch
